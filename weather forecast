@@ -1,0 +1,54 @@
+import requests
+import tkinter as tk
+from tkinter import messagebox
+
+def get_weather_data(location):
+    api_key = '90efbc9e750eb8e9f6e5df2579e0306e'
+    base_url = f'https://api.openweathermap.org/data/2.5/weather?'
+
+    if location.isdigit():
+        params = f'zip={location},us'
+    else:
+        params = f'q={location}'
+
+    complete_url = f'{base_url}{params}&appid={api_key}&units=metric'
+    response = requests.get(complete_url)
+    data = response.json()
+
+    return data
+
+def display_weather():
+    location = location_entry.get()
+    weather_data = get_weather_data(location)
+
+    if weather_data.get('cod') == 200:
+        city = weather_data['name']
+        temperature = weather_data['main']['temp']
+        humidity = weather_data['main']['humidity']
+        description = weather_data['weather'][0]['description']
+        wind_speed = weather_data['wind']['speed']
+
+        result_text = f'Weather in {city}:\n'
+        result_text += f'Temperature: {temperature}°C\n'
+        result_text += f'Humidity: {humidity}%\n'
+        result_text += f'Weather Description: {description}\n'
+        result_text += f'Wind Speed: {wind_speed} m/s'
+
+        messagebox.showinfo("Weather Forecast", result_text)
+    else:
+        messagebox.showerror("Weather Forecast", "City not found. Please check your input.")
+
+root = tk.Tk()
+root.title("Weather Forecast")
+root.configure(bg="light blue")
+
+label = tk.Label(root, text="Enter a city name or zip code:")
+label.pack(padx=10, pady=10)
+
+location_entry = tk.Entry(root)
+location_entry.pack(padx=10, pady=10)
+
+fetch_button = tk.Button(root, text="Fetch Weather", command=display_weather, bg="black", fg="white")
+fetch_button.pack(padx=10, pady=10)
+
+root.mainloop()
